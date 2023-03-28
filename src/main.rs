@@ -1,18 +1,23 @@
+mod request;
+mod url;
+
 use std::{
     io::Read,
     net::{TcpListener, TcpStream},
 };
+
+use crate::{request::Request, url::handle_url};
 
 fn handle_client(mut stream: TcpStream) {
     let address = stream.local_addr().unwrap();
     println!("Handling connection from: {}", address);
 
     let mut data: [u8; 2048] = [0; 2048];
-    let byte_count = stream.read(&mut data).unwrap();
-    let data_string = String::from_utf8_lossy(&data);
-
-    println!("Data: {:?}", &data[..byte_count]);
-    println!("\nData string:\n{}\n", &data_string);
+    let _byte_count = stream.read(&mut data).unwrap();
+    let request = Request::new(&data);
+    let (document_path, status_code) = handle_url(&request.path).unwrap();
+    println!("Document path: {:?}", document_path);
+    println!("Status code: {:?}", status_code);
 }
 
 fn main() -> std::io::Result<()> {
