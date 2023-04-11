@@ -3,7 +3,7 @@ mod response;
 mod url;
 
 use std::{
-    io::{Read, Write},
+    io::Read,
     net::{TcpListener, TcpStream},
 };
 
@@ -21,7 +21,7 @@ fn handle_client(mut stream: TcpStream) {
     println!("Status code: {:?}", status_code);
 
     let response = Response::new(status_code, &document_path);
-    stream.write(&response.to_string().as_bytes()).unwrap();
+    response.send(stream);
 }
 
 fn main() -> std::io::Result<()> {

@@ -1,4 +1,5 @@
-use std::fs;
+use std::io::{BufWriter, Write};
+use std::{fs, net::TcpStream};
 
 use crate::url::{get_status_code_str, StatusCode};
 
@@ -29,21 +30,23 @@ impl Response {
         }
     }
 
-    pub fn to_string(&self) -> String {
-        let mut output = String::new();
-        output.push_str(&self.version);
-        output.push(' ');
-        output.push_str(get_status_code_str(&self.status_code));
-        output.push('\n');
+    pub fn send(&self, tcp_stream: TcpStream) {
+        let mut stream = BufWriter::new(tcp_stream);
+        stream.write(&self.version.as_bytes()).unwrap();
+        stream.write(b" ").unwrap();
+        stream
+            .write(get_status_code_str(&self.status_code).as_bytes())
+            .unwrap();
+        stream.write(b"\n").unwrap();
 
         for header in &self.headers {
-            output.push_str(&header);
-            output.push('\n');
+            stream.write(&header.as_bytes()).unwrap();
+            stream.write(b"\n").unwrap();
         }
 
-        output.push('\n');
-        output.push_str(&self.body);
+        stream.write(b"\n").unwrap();
+        stream.write(&self.body.as_bytes()).unwrap();
 
-        output
+        stream.flush().unwrap();
     }
 }
