@@ -1,6 +1,7 @@
-use std::io::{BufWriter, Write};
+use std::io::Write;
 use std::{fs, net::TcpStream};
 
+use crate::tls::TlsConnection;
 use crate::url::{get_status_code_str, StatusCode};
 
 pub struct Response {
@@ -30,8 +31,9 @@ impl Response {
         }
     }
 
-    pub fn send(&self, tcp_stream: TcpStream) {
-        let mut stream = BufWriter::new(tcp_stream);
+    pub fn send(&self, mut tcp_stream: TcpStream, tls_conn: &mut TlsConnection) {
+        let mut stream = tls_conn.writer();
+
         stream.write(&self.version.as_bytes()).unwrap();
         stream.write(b" ").unwrap();
         stream
@@ -47,6 +49,7 @@ impl Response {
         stream.write(b"\n").unwrap();
         stream.write(&self.body.as_bytes()).unwrap();
 
-        stream.flush().unwrap();
+        let _bytes_written = tls_conn.write_tls(&mut tcp_stream);
+        // stream.flush().unwrap();
     }
 }

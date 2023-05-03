@@ -1,0 +1,12 @@
+<C[ontrol]-w> ventana
+<space> modo space
+<g> go
+<m> 
+
+TO-DO
+- https
+  - Depurar error de invalid key
+- investigar generacion de html a partir de markdown
+- file system based routing
+- cache
+- multithread 
